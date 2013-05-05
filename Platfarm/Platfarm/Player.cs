@@ -4,175 +4,148 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Platfarm
 {
-    public class Player
+    public class Player : GameEntity
     {
-        private Level level;
-        private Texture2D playerTexture;
-
         private bool isJumping;
-        private bool feetOnTheGround;
         private bool disableX;
-
-        private Direction playerDirection;
-        private Vector2 currentPosition;
-        private Vector2 previousPosition;
-
-        private Vector2 size;
-        private Vector2 direction;
-        private Vector2 speed;
-        private Vector2 maxSpeed;
-        private Vector2 friction;
 
         public Player(Level level)
         {
-            this.level = level;
-            SetupPlayer();
-        }
-
-        private void SetupPlayer()
-        {
-            currentPosition = level.StartPosition;
-            playerTexture = level.content.Load<Texture2D>("square");
-
-            size = new Vector2(20, 20);
-            direction = new Vector2(0,0);
-            speed = new Vector2(3.0f, 3.0f); 
-            maxSpeed = new Vector2(1.0f, 2.0f);
-            friction = new Vector2(2.0f, 5.0f);
+            Level = level;
+            Texture = Level.Content.Load<Texture2D>("square");
+            CurrentPosition = Level.StartPosition;
+            Size = new Vector2(20, 20);
+            MovementVector = new Vector2(0,0);
+            Speed = new Vector2(3.0f, 3.0f);
+            Friction = new Vector2(2.0f, 5.0f);
+            MaxSpeed = new Vector2(1.0f, 2.0f);
         }
 
         public void Update(GameTime gameTime, KeyboardState keyboardState)
         {
-            playerDirection = Direction.None;
+            GetInputs(keyboardState);
+            Move(gameTime);
+        }
 
-            if(!disableX)
+        private void GetInputs(KeyboardState keyboardState)
+        {
+            Direction = Direction.None;
+
+            if (!disableX)
             {
                 if (keyboardState.IsKeyDown(Keys.Left))
-                    playerDirection = Direction.Left;
+                    Direction = Direction.Left;
                 if (keyboardState.IsKeyDown(Keys.Right))
-                    playerDirection = Direction.Right;
+                    Direction = Direction.Right;
             }
 
             if (!isJumping)
                 if (keyboardState.IsKeyDown(Keys.Space))
                 {
-                    currentPosition.Y -= 1;
-                    direction.Y = speed.Y;
+                    CurrentPosition.Y -= 1;
+                    MovementVector.Y = Speed.Y;
                     isJumping = true;
                 }
-
-            LetsGetPhysical(gameTime);
         }
 
-        private enum Direction
-        {
-            None, Left, Right, Up, Down
-        }
-
-        private void LetsGetPhysical(GameTime gameTime)
+        private void Move(GameTime gameTime)
         {
             var elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            previousPosition = currentPosition;
+            PreviousPosition = CurrentPosition;
 
-            switch (playerDirection)
+            switch (Direction)
             {
                 case Direction.Left:
-                    direction.X -= speed.X * elapsed;
-                    ApplyFriction(elapsed, false);
+                    MovementVector.X -= Speed.X * elapsed;
+                    ApplyPhysics(elapsed, false);
                     break;
                 case Direction.Right:
-                    direction.X += speed.X * elapsed;
-                    ApplyFriction(elapsed, false);
+                    MovementVector.X += Speed.X * elapsed;
+                    ApplyPhysics(elapsed, false);
                     break;
                 default:
-                    ApplyFriction(elapsed, true);
+                    ApplyPhysics(elapsed, true);
                     break;
             }
 
             // Cap run speed
-            if (direction.X > maxSpeed.X) direction.X = maxSpeed.X;
-            if (direction.X < -maxSpeed.X) direction.X = -maxSpeed.X;
+            if (MovementVector.X > MaxSpeed.X) MovementVector.X = MaxSpeed.X;
+            if (MovementVector.X < -MaxSpeed.X) MovementVector.X = -MaxSpeed.X;
 
-            currentPosition.X += direction.X;
-            currentPosition.Y -= direction.Y;
+            CurrentPosition.X += MovementVector.X;
+            CurrentPosition.Y -= MovementVector.Y;
 
             CheckCollision();
         }
 
-        private void ApplyFriction(float elapsed, bool checkNeutral)
+        private void ApplyPhysics(float elapsed, bool checkNeutral)
         {
             // Skip checking min friction if we're actively trying to accelerate
-            if (checkNeutral && direction.X < friction.X * elapsed && direction.X > -friction.X * elapsed)
-                direction.X = 0;
+            if (checkNeutral && MovementVector.X < Friction.X * elapsed && MovementVector.X > -Friction.X * elapsed)
+                MovementVector.X = 0;
             else
             {
-                if (direction.X < 0)
-                    direction.X += friction.X*elapsed;
-                if (direction.X > 0)
-                    direction.X -= friction.X*elapsed;
+                if (MovementVector.X < 0)
+                    MovementVector.X += Friction.X*elapsed;
+                if (MovementVector.X > 0)
+                    MovementVector.X -= Friction.X*elapsed;
             }
 
             // Deal with falling
-            if (!feetOnTheGround)
+            if (!IsOnGround)
             {
-                direction.Y -= friction.Y * elapsed;
+                MovementVector.Y -= Friction.Y * elapsed;
             }
         }
 
         private void CheckCollision()
         {
-            feetOnTheGround = false;
+            IsOnGround = false;
 
-            foreach (var levelObject in level.LevelObjects)
+            foreach (var levelObject in Level.LevelObjects)
             {
                 // If we hit something, reset position to last known good and cut speed in half
                 if (Bound().Intersects(levelObject))
                 {
-                    currentPosition = previousPosition;
-                    direction.Y = direction.Y*0.5f;
+                    CurrentPosition = PreviousPosition;
+                    MovementVector.Y = MovementVector.Y*0.5f;
                     disableX = true;
                 }
 
                 // See if maybe we landed on our feet
                 if (Bound(Direction.Down).Intersects(levelObject))
                 {
-                    feetOnTheGround = true;
+                    IsOnGround = true;
                     isJumping = false;
                     disableX = false;
                 }
             }
 
-            if (Bound().Intersects(level.ExitBox))
-                currentPosition = level.StartPosition;
-        }
-
-        private Rectangle Bound(Direction direction = Direction.None)
-        {
-            int xAdjust = 0;
-            int yAdjust = 0;
-
-            switch (direction)
+            foreach (var enemy in Level.Enemies)
             {
-                case Direction.Left:
-                    xAdjust = -1;
-                    break;
-                case Direction.Right:
-                    xAdjust = 1;
-                    break;
-                case Direction.Up:
-                    yAdjust = -1;
-                    break;
-                case Direction.Down:
-                    yAdjust = 1;
-                    break;
+                if (Bound(Direction.Down).Intersects(enemy.Bound()))
+                {
+                    enemy.Kill();
+                }
+                else if (Bound(Direction.Left).Intersects(enemy.Bound()) ||
+                         Bound(Direction.Right).Intersects(enemy.Bound()))
+                {
+                    this.Kill();
+                }
             }
 
-            return new Rectangle((int)currentPosition.X + xAdjust, (int)currentPosition.Y + yAdjust, (int)size.X, (int)size.Y);
+            if (Bound().Intersects(Level.ExitBox))
+                CurrentPosition = Level.StartPosition;
+        }
+
+        private void Kill()
+        {
+            CurrentPosition = Level.StartPosition;
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(playerTexture, new Rectangle((int)currentPosition.X, (int)currentPosition.Y, (int)size.X, (int)size.Y), Color.Red);
+            spriteBatch.Draw(Texture, new Rectangle((int)CurrentPosition.X, (int)CurrentPosition.Y, (int)Size.X, (int)Size.Y), Color.Blue);
         }
     }
 }

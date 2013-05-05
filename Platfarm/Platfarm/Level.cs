@@ -9,21 +9,24 @@ namespace Platfarm
 {
     public class Level
     {
+        public readonly ContentManager Content;
+
         public List<Rectangle> LevelObjects { get; set; }
         public Vector2 StartPosition { get; set; }
         public Rectangle ExitBox { get; set; }
+        public Player Player;
+        public List<Enemy> Enemies; 
+        public List<Enemy> DeathList; 
 
-        public readonly ContentManager content;
-
-        private Player player;
-        private Texture2D levelTexture;
+        private readonly Texture2D _levelTexture;
 
         public Level(IServiceProvider serviceProvider)
         {
-            content = new ContentManager(serviceProvider, "Content");
-            levelTexture = content.Load<Texture2D>("square");
+            Content = new ContentManager(serviceProvider, "Content");
+            _levelTexture = Content.Load<Texture2D>("square");
 
             StartPosition = new Vector2(250, 280);
+
             LevelObjects = new List<Rectangle>
                 {
                     new Rectangle(200, 300, 400, 10),  // Ground
@@ -31,26 +34,51 @@ namespace Platfarm
                     new Rectangle(455, 250, 100, 10),  // More thingie
                     new Rectangle(360, 200, 80, 10)    // You know the drill by now
                 };
+
             ExitBox = new Rectangle(390, 180, 20, 20);
 
-            player = new Player(this);
+            Enemies = new List<Enemy>
+                {
+                    new Enemy(this, new Vector2(550, 200))
+                };
+
+            DeathList = new List<Enemy>();
+
+            Player = new Player(this);
         }
 
         public void Update(GameTime gameTime, KeyboardState keyboardState)
         {
-            player.Update(gameTime, keyboardState);
+            Player.Update(gameTime, keyboardState);
+
+            foreach (var enemy in Enemies)
+            {
+                enemy.Update(gameTime);
+            }
+
+            foreach(var deadEnemy in DeathList)
+            {
+                deadEnemy.Unload();
+            }
+
+            DeathList.Clear();
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            player.Draw(spriteBatch);
+            Player.Draw(spriteBatch);
 
-            spriteBatch.Draw(levelTexture, ExitBox, Color.LightGreen);
+            foreach (var enemy in Enemies)
+            {
+                enemy.Draw(spriteBatch);
+            }
 
             foreach (var levelObject in LevelObjects)
             {
-                spriteBatch.Draw(levelTexture, levelObject, Color.Azure);
+                spriteBatch.Draw(_levelTexture, levelObject, Color.Azure);
             }
+
+            spriteBatch.Draw(_levelTexture, ExitBox, Color.LightGreen);
         }
     }
 }
