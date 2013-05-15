@@ -20,7 +20,7 @@ namespace Platfarm
             Animations = new[]
                 {
                     new Animation(this, AnimationType.Run,   2, 0.5f, true),
-                    new Animation(this, AnimationType.Jump,   2, 0.5f, true),
+                    new Animation(this, AnimationType.Jump,  2, 0.5f, true),
                     new Animation(this, AnimationType.Death, 1, 0.5f, false)
                 }.ToDictionary(x => x.AnimationType);
             Sprite.SetAnimation(Animations[AnimationType.Run]);
@@ -28,7 +28,6 @@ namespace Platfarm
 
         public override void Move(GameTime gameTime)
         {
-            Sprite.SetAnimation(Animations[AnimationType.Run]);
 
             switch (Direction)
             {
@@ -48,6 +47,10 @@ namespace Platfarm
                 MovementVector.Y = Speed.Y;
                 IsJumping = true;
                 Sprite.SetAnimation(Animations[AnimationType.Jump]);
+            }
+            else
+            {
+                Sprite.SetAnimation(Animations[AnimationType.Run]);
             }
 
             base.Move(gameTime);
