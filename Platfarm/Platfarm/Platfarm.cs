@@ -34,7 +34,7 @@ namespace Platfarm
             // Previous keyboardstate was saved to prevent double taps:
             if (_currentKeyboardState.IsKeyDown(Keys.Escape) 
                 && !_prevKeyboardState.IsKeyDown(Keys.Escape))
-                _pause = !_pause;
+                _level = new Level(Services);
 
             if(!_pause)
                 _level.Update(gameTime, _currentKeyboardState);

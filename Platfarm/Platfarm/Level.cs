@@ -16,7 +16,7 @@ namespace Platfarm
         public Rectangle ExitBox { get; set; }
         public Player Player;
         public List<Enemy> Enemies; 
-        public List<Enemy> DeathList; 
+        public List<GameEntity> DeathList; 
 
         private readonly Texture2D _levelTexture;
 
@@ -32,7 +32,9 @@ namespace Platfarm
                     new Rectangle(200, 300, 400, 10),  // Ground
                     new Rectangle(245, 250, 100, 10),  // A flat thingie in the air
                     new Rectangle(455, 250, 100, 10),  // More thingie
-                    new Rectangle(360, 200, 80, 10)    // You know the drill by now
+                    new Rectangle(360, 200, 80, 10),    // You know the drill by now
+                    new Rectangle(300, 290, 10,10),
+                    new Rectangle(500, 290, 10,10)
                 };
 
             ExitBox = new Rectangle(390, 180, 20, 20);
@@ -42,7 +44,7 @@ namespace Platfarm
                     new Enemy(this, new Vector2(550, 200))
                 };
 
-            DeathList = new List<Enemy>();
+            DeathList = new List<GameEntity>();
 
             Player = new Player(this);
         }
@@ -56,12 +58,15 @@ namespace Platfarm
                 enemy.Update(gameTime);
             }
 
-            foreach(var deadEnemy in DeathList)
+            for (int index = DeathList.Count; index > 0; index--)
             {
-                deadEnemy.Unload();
+                var deadEnemy = DeathList[index - 1];
+                if (deadEnemy.DeathCountdown > 0.5f)
+                {
+                    DeathList.Remove(deadEnemy);
+                    deadEnemy.Unload();
+                }
             }
-
-            DeathList.Clear();
         }
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)

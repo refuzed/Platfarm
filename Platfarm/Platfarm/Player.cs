@@ -30,8 +30,15 @@ namespace Platfarm
 
         public void Update(GameTime gameTime, KeyboardState keyboardState)
         {
-            GetInputs(keyboardState);
-            Move(gameTime);
+            if (isDead)
+            {
+                DeathCountdown += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            }
+            else
+            {
+                GetInputs(keyboardState);
+                Move(gameTime);
+            }
         }
 
         private void GetInputs(KeyboardState keyboardState)
@@ -74,6 +81,8 @@ namespace Platfarm
             var elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
             PreviousPosition = CurrentPosition;
 
+            CheckCollision();
+
             switch (Direction)
             {
                 case Direction.Left:
@@ -93,10 +102,10 @@ namespace Platfarm
             if (MovementVector.X > MaxSpeed.X) MovementVector.X = MaxSpeed.X;
             if (MovementVector.X < -MaxSpeed.X) MovementVector.X = -MaxSpeed.X;
 
+
             CurrentPosition.X += MovementVector.X;
             CurrentPosition.Y -= MovementVector.Y;
 
-            CheckCollision();
         }
 
         private void ApplyPhysics(float elapsed, bool checkNeutral)
@@ -125,29 +134,34 @@ namespace Platfarm
 
             foreach (var levelObject in Level.LevelObjects)
             {
-                // If we hit something, reset position to last known good and cut speed in half
-                if (Bound().Intersects(levelObject))
+                if (Bound(Direction.Left).Intersects(levelObject) || Bound(Direction.Right).Intersects(levelObject))
                 {
-                    CurrentPosition = PreviousPosition;
-                    MovementVector.Y = MovementVector.Y*0.5f;
+                    CurrentPosition.X = PreviousPosition.X;
+                    MovementVector.X = 0.0f;
                 }
 
-                // See if maybe we landed on our feet
+                if (Bound(Direction.Up).Intersects(levelObject))
+                {
+                    CurrentPosition.Y = PreviousPosition.Y;
+                    MovementVector.Y = -1.0f;
+                }
+
                 if (Bound(Direction.Down).Intersects(levelObject))
                 {
+                    CurrentPosition.Y = PreviousPosition.Y;
+                    MovementVector.Y = 0.0f;
                     IsOnGround = true;
                     _isJumping = false;
                 }
             }
 
-
             if (Bound().Intersects(Level.ExitBox))
                 CurrentPosition = Level.StartPosition;
         }
 
-        public void Kill()
+        public override void Unload()
         {
-            CurrentPosition = Level.StartPosition;
+            Level.Player = new Player(Level);
         }
     }
 }

@@ -27,7 +27,10 @@ namespace Platfarm
 
         public void Update(GameTime gameTime)
         {
-            Move(gameTime);
+            if (isDead)
+                DeathCountdown += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            else
+                Move(gameTime);
         }
 
         private void Move(GameTime gameTime)
@@ -48,12 +51,11 @@ namespace Platfarm
                     break;
             }
 
+            CheckCollision();
             ApplyPhysics(elapsed);
-
+            
             CurrentPosition.X += MovementVector.X;
             CurrentPosition.Y -= MovementVector.Y;
-
-            CheckCollision();
         }
 
         private void ApplyPhysics(float elapsed)
@@ -71,38 +73,35 @@ namespace Platfarm
 
             foreach (var levelObject in Level.LevelObjects)
             {
-                // If we hit something, reset position to last known good and cut speed in half
-                if (Bound().Intersects(levelObject))
+                if (Bound(Direction.Left).Intersects(levelObject) || Bound(Direction.Right).Intersects(levelObject))
                 {
-                    CurrentPosition = PreviousPosition;
-                    MovementVector.Y = MovementVector.Y * 0.5f;
+                    CurrentPosition.X = PreviousPosition.X;
+                    MovementVector.X = -MovementVector.X;
+                    Direction = Direction == Direction.Left ? Direction.Right : Direction.Left;
                 }
 
-                // See if maybe we landed on our feet
                 if (Bound(Direction.Down).Intersects(levelObject))
                 {
+                    CurrentPosition.Y = PreviousPosition.Y;
+                    MovementVector.Y = MovementVector.Y * 0.0f;
                     IsOnGround = true;
                 }
             }
 
-            if (Bound().Intersects(Level.Player.Bound(Direction.Down)))
+            if (Bound().Intersects(Level.Player.Bound(Direction.Down)) && !Level.Player.isDead && !this.isDead)
             {
                 this.Kill();
+                Level.Player.MovementVector.Y = 1;
             }
-            else if (Level.Player.Bound(Direction.Left).Intersects(this.Bound()) ||
-                     Level.Player.Bound(Direction.Right).Intersects(this.Bound()))
+            else if (Level.Player.Bound(Direction.Left).Intersects(this.Bound()) 
+                        || Level.Player.Bound(Direction.Right).Intersects(this.Bound()) 
+                        && !Level.Player.isDead)
             {
                 Level.Player.Kill();
             }
         }
-
-        public void Kill()
-        {
-            Sprite.SetAnimation(Animations[AnimationType.Death]);
-            Level.DeathList.Add(this);
-        }
-
-        public void Unload()
+        
+        public override void Unload()
         {
             Level.Enemies.Remove(this);
         }
