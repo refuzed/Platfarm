@@ -19,6 +19,8 @@ namespace Platfarm
         public Vector2 Friction;
         public bool IsOnGround { get; set; }
         public Color Color { get; set; }
+        public float DeathCountdown { get; set; }
+        public bool isDead { get; set; }
 
         public Animator Sprite { get; set; }
         public Dictionary<AnimationType, Animation> Animations { get; set; }
@@ -53,12 +55,21 @@ namespace Platfarm
                     break;
             }
 
-            return new Rectangle((int)CurrentPosition.X + xAdjust, (int)CurrentPosition.Y + yAdjust, (int)Size.X, (int)Size.Y);
+            return new Rectangle((int)CurrentPosition.X + xAdjust * (int)Speed.X, (int)CurrentPosition.Y + yAdjust * (int)Speed.Y, (int)Size.X, (int)Size.Y);
         }
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             Sprite.Draw(gameTime, spriteBatch, CurrentPosition, Flip);
         }
+
+        public void Kill()
+        {
+            isDead = true;
+            Sprite.SetAnimation(Animations[AnimationType.Death]);
+            Level.DeathList.Add(this);
+        }
+
+        public virtual void Unload(){}
     }
 }
