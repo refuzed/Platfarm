@@ -20,6 +20,7 @@ namespace Platfarm
         public bool IsOnGround { get; set; }
         public bool IsJumping { get; set; }
         public float DeathCountdown { get; set; }
+        public float DeathTimeout { get; set; }
         public bool isDead { get; set; }
 
         public Animator Sprite { get; set; }
@@ -32,6 +33,7 @@ namespace Platfarm
             Speed = new Vector2(3.0f, 3.0f);
             Friction = new Vector2(2.0f, 5.0f);
             MaxSpeed = new Vector2(1.0f, 2.0f);
+            DeathTimeout = 1.0f;
         }
 
         public Rectangle Bound(Direction direction = Direction.None)

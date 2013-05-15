@@ -64,11 +64,11 @@ namespace Platfarm
 
             for (int index = DeathList.Count; index > 0; index--)
             {
-                var deadEnemy = DeathList[index - 1];
-                if (deadEnemy.DeathCountdown > 0.5f)
+                var deadEntity = DeathList[index - 1];
+                if (deadEntity.DeathCountdown > deadEntity.DeathTimeout)
                 {
-                    DeathList.Remove(deadEnemy);
-                    deadEnemy.Unload();
+                    DeathList.Remove(deadEntity);
+                    deadEntity.Unload();
                 }
             }
         }
