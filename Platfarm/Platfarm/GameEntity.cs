@@ -18,7 +18,6 @@ namespace Platfarm
         public Vector2 MaxSpeed;
         public Vector2 Friction;
         public bool IsOnGround { get; set; }
-        public Color Color { get; set; }
         public float DeathCountdown { get; set; }
         public bool isDead { get; set; }
 

@@ -15,7 +15,6 @@ namespace Platfarm
             Texture = Level.Content.Load<Texture2D>("Mario");
             CurrentPosition = Level.StartPosition;
             Size = new Vector2(16, 16);
-            Color = Color.Blue;
 
             Sprite = new Animator();
             Animations = new[]
@@ -23,7 +22,8 @@ namespace Platfarm
                     new Animation(this, AnimationType.Stand, 1, 0.5f, false),
                     new Animation(this, AnimationType.Run,   2, 0.25f, true),
                     new Animation(this, AnimationType.Jump,  2, 0.5f, false),
-                    new Animation(this, AnimationType.Death, 1, 0.5f, false)
+                    new Animation(this, AnimationType.Death, 1, 0.5f, false),
+                    new Animation(this, AnimationType.Skid,  1, 0.5f, false)
                 }.ToDictionary(x => x.AnimationType);
             Sprite.SetAnimation(Animations[AnimationType.Stand]);
         }
@@ -63,7 +63,12 @@ namespace Platfarm
             {
                 Direction = Direction.None;
                 if (!_isJumping)
-                    Sprite.SetAnimation(Animations[AnimationType.Stand]);
+                {
+                    if (MovementVector.X != 0.0f)
+                        Sprite.SetAnimation(Animations[AnimationType.Skid]);
+                    else
+                        Sprite.SetAnimation(Animations[AnimationType.Stand]);
+                }
             }
 
             if (!_isJumping)
@@ -79,7 +84,6 @@ namespace Platfarm
         private void Move(GameTime gameTime)
         {
             var elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            PreviousPosition = CurrentPosition;
 
             CheckCollision();
 
@@ -95,6 +99,7 @@ namespace Platfarm
                     break;
                 default:
                     ApplyPhysics(elapsed, true);
+
                     break;
             }
 
@@ -102,7 +107,7 @@ namespace Platfarm
             if (MovementVector.X > MaxSpeed.X) MovementVector.X = MaxSpeed.X;
             if (MovementVector.X < -MaxSpeed.X) MovementVector.X = -MaxSpeed.X;
 
-
+            PreviousPosition = CurrentPosition;
             CurrentPosition.X += MovementVector.X;
             CurrentPosition.Y -= MovementVector.Y;
 
@@ -137,19 +142,20 @@ namespace Platfarm
                 if (Bound(Direction.Left).Intersects(levelObject) || Bound(Direction.Right).Intersects(levelObject))
                 {
                     CurrentPosition.X = PreviousPosition.X;
-                    MovementVector.X = 0.0f;
+                    MovementVector.X *= -0.15f;
+                    Direction = Direction.None;
                 }
 
                 if (Bound(Direction.Up).Intersects(levelObject))
                 {
                     CurrentPosition.Y = PreviousPosition.Y;
-                    MovementVector.Y = -1.0f;
+                    MovementVector.Y = -0.25f;
                 }
 
                 if (Bound(Direction.Down).Intersects(levelObject))
                 {
                     CurrentPosition.Y = PreviousPosition.Y;
-                    MovementVector.Y = 0.0f;
+                    MovementVector.Y *= 0.5f;
                     IsOnGround = true;
                     _isJumping = false;
                 }

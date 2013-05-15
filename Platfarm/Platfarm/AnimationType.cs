@@ -6,5 +6,6 @@
         Run,
         Jump,
         Death,
+        Skid
     }
 }

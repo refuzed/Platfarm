@@ -14,7 +14,6 @@ namespace Platfarm
             Size = new Vector2(16, 16);
             Speed = new Vector2(1.0f, 3.0f);
             Direction = Direction.Left;
-            Color = Color.Red;
 
             Sprite = new Animator();
             Animations = new[]
