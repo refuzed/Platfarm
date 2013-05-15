@@ -6,38 +6,38 @@ namespace Platfarm
 {
     public class Platfarm : Game
     {
-        GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
-        private Level level;
-        private KeyboardState currentKeyboardState;
-        private KeyboardState prevKeyboardState;
-        private bool pause;
+        GraphicsDeviceManager _graphics;
+        SpriteBatch _spriteBatch;
+        private Level _level;
+        private KeyboardState _currentKeyboardState;
+        private KeyboardState _prevKeyboardState;
+        private bool _pause;
 
         public Platfarm()
         {
-            graphics = new GraphicsDeviceManager(this);
+            _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
         }
 
         protected override void LoadContent()
         {
-            spriteBatch = new SpriteBatch(GraphicsDevice);
-            level = new Level(Services);
+            _spriteBatch = new SpriteBatch(GraphicsDevice);
+            _level = new Level(Services);
         }
 
         protected override void Update(GameTime gameTime)
         {
             // Get keyboard state once so we can pass it through.  
-            prevKeyboardState = currentKeyboardState;
-            currentKeyboardState = Keyboard.GetState();
+            _prevKeyboardState = _currentKeyboardState;
+            _currentKeyboardState = Keyboard.GetState();
 
             // Previous keyboardstate was saved to prevent double taps:
-            if (currentKeyboardState.IsKeyDown(Keys.Escape) 
-                && !prevKeyboardState.IsKeyDown(Keys.Escape))
-                pause = !pause;
+            if (_currentKeyboardState.IsKeyDown(Keys.Escape) 
+                && !_prevKeyboardState.IsKeyDown(Keys.Escape))
+                _pause = !_pause;
 
-            if(!pause)
-                level.Update(gameTime, currentKeyboardState);
+            if(!_pause)
+                _level.Update(gameTime, _currentKeyboardState);
 
             base.Update(gameTime);
         }
@@ -45,11 +45,11 @@ namespace Platfarm
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-            spriteBatch.Begin();
+            _spriteBatch.Begin();
 
-            level.Draw(spriteBatch);
+            _level.Draw(gameTime, _spriteBatch);
 
-            spriteBatch.End();
+            _spriteBatch.End();
             base.Draw(gameTime);
         }
     }

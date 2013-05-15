@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Linq;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Platfarm
@@ -8,13 +9,20 @@ namespace Platfarm
         public Enemy(Level level, Vector2 startPosition)
         {
             Level = level;
-            Texture = level.Content.Load<Texture2D>("square");
+            Texture = level.Content.Load<Texture2D>("Goomba");
             CurrentPosition = startPosition;
-            Size = new Vector2(20, 20);
-            MovementVector = new Vector2(0, 0);
+            Size = new Vector2(16, 16);
             Speed = new Vector2(1.0f, 3.0f);
-            Friction = new Vector2(0.0f, 5.0f);
             Direction = Direction.Left;
+            Color = Color.Red;
+
+            Sprite = new Animator();
+            Animations = new[]
+                {
+                    new Animation(this, AnimationType.Run,   2, 0.5f, true),
+                    new Animation(this, AnimationType.Death, 1, 0.5f, false)
+                }.ToDictionary(x => x.AnimationType);
+            Sprite.SetAnimation(Animations[AnimationType.Run]);
         }
 
         public void Update(GameTime gameTime)
@@ -26,13 +34,16 @@ namespace Platfarm
         {
             var elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
             PreviousPosition = CurrentPosition;
+            Sprite.SetAnimation(Animations[AnimationType.Run]);
 
             switch (Direction)
             {
                 case Direction.Left:
+                    Flip = SpriteEffects.FlipHorizontally;
                     MovementVector.X = -Speed.X;
                     break;
                 case Direction.Right:
+                    Flip = SpriteEffects.None;
                     MovementVector.X = Speed.X;
                     break;
             }
@@ -73,22 +84,27 @@ namespace Platfarm
                     IsOnGround = true;
                 }
             }
+
+            if (Bound().Intersects(Level.Player.Bound(Direction.Down)))
+            {
+                this.Kill();
+            }
+            else if (Level.Player.Bound(Direction.Left).Intersects(this.Bound()) ||
+                     Level.Player.Bound(Direction.Right).Intersects(this.Bound()))
+            {
+                Level.Player.Kill();
+            }
         }
 
         public void Kill()
         {
-            //TODO: Play a death animation
+            Sprite.SetAnimation(Animations[AnimationType.Death]);
             Level.DeathList.Add(this);
         }
 
         public void Unload()
         {
             Level.Enemies.Remove(this);
-        }
-
-        public void Draw(SpriteBatch spriteBatch)
-        {
-            spriteBatch.Draw(Texture, new Rectangle((int)CurrentPosition.X, (int)CurrentPosition.Y, (int)Size.X, (int)Size.Y), Color.Red);
         }
      }
 }

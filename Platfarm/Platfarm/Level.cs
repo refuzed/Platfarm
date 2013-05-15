@@ -64,13 +64,13 @@ namespace Platfarm
             DeathList.Clear();
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            Player.Draw(spriteBatch);
+            Player.Draw(gameTime, spriteBatch);
 
             foreach (var enemy in Enemies)
             {
-                enemy.Draw(spriteBatch);
+                enemy.Draw(gameTime, spriteBatch);
             }
 
             foreach (var levelObject in LevelObjects)

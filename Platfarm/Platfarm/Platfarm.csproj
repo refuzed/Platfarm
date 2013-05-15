@@ -107,6 +107,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Animation.cs" />
+    <Compile Include="AnimationType.cs" />
+    <Compile Include="Animator.cs" />
     <Compile Include="Direction.cs" />
     <Compile Include="Enemy.cs" />
     <Compile Include="GameEntity.cs" />

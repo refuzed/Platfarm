@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Linq;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -6,19 +7,25 @@ namespace Platfarm
 {
     public class Player : GameEntity
     {
-        private bool isJumping;
-        private bool disableX;
+        private bool _isJumping;
 
         public Player(Level level)
         {
             Level = level;
-            Texture = Level.Content.Load<Texture2D>("square");
+            Texture = Level.Content.Load<Texture2D>("Mario");
             CurrentPosition = Level.StartPosition;
-            Size = new Vector2(20, 20);
-            MovementVector = new Vector2(0,0);
-            Speed = new Vector2(3.0f, 3.0f);
-            Friction = new Vector2(2.0f, 5.0f);
-            MaxSpeed = new Vector2(1.0f, 2.0f);
+            Size = new Vector2(16, 16);
+            Color = Color.Blue;
+
+            Sprite = new Animator();
+            Animations = new[]
+                {
+                    new Animation(this, AnimationType.Stand, 1, 0.5f, false),
+                    new Animation(this, AnimationType.Run,   2, 0.25f, true),
+                    new Animation(this, AnimationType.Jump,  2, 0.5f, false),
+                    new Animation(this, AnimationType.Death, 1, 0.5f, false)
+                }.ToDictionary(x => x.AnimationType);
+            Sprite.SetAnimation(Animations[AnimationType.Stand]);
         }
 
         public void Update(GameTime gameTime, KeyboardState keyboardState)
@@ -31,20 +38,34 @@ namespace Platfarm
         {
             Direction = Direction.None;
 
-            if (!disableX)
+            if (keyboardState.IsKeyDown(Keys.Left))
             {
-                if (keyboardState.IsKeyDown(Keys.Left))
-                    Direction = Direction.Left;
-                if (keyboardState.IsKeyDown(Keys.Right))
-                    Direction = Direction.Right;
+                Direction = Direction.Left;
+                Flip = SpriteEffects.FlipHorizontally;
+                if (!_isJumping)
+                    Sprite.SetAnimation(Animations[AnimationType.Run]);
+            }
+            if (keyboardState.IsKeyDown(Keys.Right))
+            {
+                Direction = Direction.Right;
+                Flip = SpriteEffects.None;
+                if (!_isJumping)
+                    Sprite.SetAnimation(Animations[AnimationType.Run]);
+            }
+            if (!keyboardState.IsKeyDown(Keys.Right) && !keyboardState.IsKeyDown(Keys.Left))
+            {
+                Direction = Direction.None;
+                if (!_isJumping)
+                    Sprite.SetAnimation(Animations[AnimationType.Stand]);
             }
 
-            if (!isJumping)
+            if (!_isJumping)
                 if (keyboardState.IsKeyDown(Keys.Space))
                 {
                     CurrentPosition.Y -= 1;
                     MovementVector.Y = Speed.Y;
-                    isJumping = true;
+                    _isJumping = true;
+                    Sprite.SetAnimation(Animations[AnimationType.Jump]);
                 }
         }
 
@@ -109,43 +130,24 @@ namespace Platfarm
                 {
                     CurrentPosition = PreviousPosition;
                     MovementVector.Y = MovementVector.Y*0.5f;
-                    disableX = true;
                 }
 
                 // See if maybe we landed on our feet
                 if (Bound(Direction.Down).Intersects(levelObject))
                 {
                     IsOnGround = true;
-                    isJumping = false;
-                    disableX = false;
+                    _isJumping = false;
                 }
             }
 
-            foreach (var enemy in Level.Enemies)
-            {
-                if (Bound(Direction.Down).Intersects(enemy.Bound()))
-                {
-                    enemy.Kill();
-                }
-                else if (Bound(Direction.Left).Intersects(enemy.Bound()) ||
-                         Bound(Direction.Right).Intersects(enemy.Bound()))
-                {
-                    this.Kill();
-                }
-            }
 
             if (Bound().Intersects(Level.ExitBox))
                 CurrentPosition = Level.StartPosition;
         }
 
-        private void Kill()
+        public void Kill()
         {
             CurrentPosition = Level.StartPosition;
-        }
-
-        public void Draw(SpriteBatch spriteBatch)
-        {
-            spriteBatch.Draw(Texture, new Rectangle((int)CurrentPosition.X, (int)CurrentPosition.Y, (int)Size.X, (int)Size.Y), Color.Blue);
         }
     }
 }
