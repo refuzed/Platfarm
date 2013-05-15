@@ -7,8 +7,6 @@ namespace Platfarm
 {
     public class Player : GameEntity
     {
-        private bool _isJumping;
-
         public Player(Level level)
         {
             Level = level;
@@ -49,20 +47,20 @@ namespace Platfarm
             {
                 Direction = Direction.Left;
                 Flip = SpriteEffects.FlipHorizontally;
-                if (!_isJumping)
+                if (!IsJumping)
                     Sprite.SetAnimation(Animations[AnimationType.Run]);
             }
             if (keyboardState.IsKeyDown(Keys.Right))
             {
                 Direction = Direction.Right;
                 Flip = SpriteEffects.None;
-                if (!_isJumping)
+                if (!IsJumping)
                     Sprite.SetAnimation(Animations[AnimationType.Run]);
             }
             if (!keyboardState.IsKeyDown(Keys.Right) && !keyboardState.IsKeyDown(Keys.Left))
             {
                 Direction = Direction.None;
-                if (!_isJumping)
+                if (!IsJumping)
                 {
                     if (MovementVector.X != 0.0f)
                         Sprite.SetAnimation(Animations[AnimationType.Skid]);
@@ -71,12 +69,12 @@ namespace Platfarm
                 }
             }
 
-            if (!_isJumping)
+            if (!IsJumping)
                 if (keyboardState.IsKeyDown(Keys.Space))
                 {
                     CurrentPosition.Y -= 1;
                     MovementVector.Y = Speed.Y;
-                    _isJumping = true;
+                    IsJumping = true;
                     Sprite.SetAnimation(Animations[AnimationType.Jump]);
                 }
         }
@@ -131,38 +129,6 @@ namespace Platfarm
             {
                 MovementVector.Y -= Friction.Y * elapsed;
             }
-        }
-
-        private void CheckCollision()
-        {
-            IsOnGround = false;
-
-            foreach (var levelObject in Level.LevelObjects)
-            {
-                if (Bound(Direction.Left).Intersects(levelObject) || Bound(Direction.Right).Intersects(levelObject))
-                {
-                    CurrentPosition.X = PreviousPosition.X;
-                    MovementVector.X *= -0.15f;
-                    Direction = Direction.None;
-                }
-
-                if (Bound(Direction.Up).Intersects(levelObject))
-                {
-                    CurrentPosition.Y = PreviousPosition.Y;
-                    MovementVector.Y = -0.25f;
-                }
-
-                if (Bound(Direction.Down).Intersects(levelObject))
-                {
-                    CurrentPosition.Y = PreviousPosition.Y;
-                    MovementVector.Y *= 0.5f;
-                    IsOnGround = true;
-                    _isJumping = false;
-                }
-            }
-
-            if (Bound().Intersects(Level.ExitBox))
-                CurrentPosition = Level.StartPosition;
         }
 
         public override void Unload()

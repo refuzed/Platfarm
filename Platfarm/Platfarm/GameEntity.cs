@@ -18,6 +18,7 @@ namespace Platfarm
         public Vector2 MaxSpeed;
         public Vector2 Friction;
         public bool IsOnGround { get; set; }
+        public bool IsJumping { get; set; }
         public float DeathCountdown { get; set; }
         public bool isDead { get; set; }
 
@@ -67,6 +68,36 @@ namespace Platfarm
             isDead = true;
             Sprite.SetAnimation(Animations[AnimationType.Death]);
             Level.DeathList.Add(this);
+        }
+
+
+        public virtual void CheckCollision()
+        {
+            IsOnGround = false;
+
+            foreach (var levelObject in Level.LevelObjects)
+            {
+                if (Bound(Direction.Down).Intersects(levelObject))
+                {
+                    CurrentPosition.Y = PreviousPosition.Y;
+                    MovementVector.Y *= 0.35f;
+                    IsOnGround = true;
+                    IsJumping = false;
+                }
+
+                if (Bound(Direction.Left).Intersects(levelObject) || Bound(Direction.Right).Intersects(levelObject))
+                {
+                    CurrentPosition.X = PreviousPosition.X;
+                    MovementVector.X *= -0.15f;
+                    Direction = Direction == Direction.Right ? Direction.Left : Direction.Right;
+                }
+
+                if (Bound(Direction.Up).Intersects(levelObject))
+                {
+                    CurrentPosition.Y = PreviousPosition.Y;
+                    MovementVector.Y = -0.25f;
+                }
+            }
         }
 
         public virtual void Unload(){}

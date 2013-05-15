@@ -37,8 +37,8 @@ namespace Platfarm
                     _frame = Math.Min(_frame + 1, _animation.FrameCount - 1);
                 }
             }
-            
-            var source = new Rectangle((_frame) * _animation.Height, (int)_animation.AnimationType * 16,  _animation.Height, _animation.Height);
+
+            var source = new Rectangle((_frame) * _animation.Width, (int)_animation.AnimationType * _animation.Height, _animation.Width, _animation.Height);
 
             spriteBatch.Draw(_animation.Texture, position, source, Color.White, 0.0f, new Vector2(), 1.0f, spriteEffects, 0.0f);
         }

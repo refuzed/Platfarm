@@ -22,6 +22,7 @@ namespace Platfarm
 
         public Level(IServiceProvider serviceProvider)
         {
+            var rand = new Random();
             Content = new ContentManager(serviceProvider, "Content");
             _levelTexture = Content.Load<Texture2D>("square");
 
@@ -29,19 +30,22 @@ namespace Platfarm
 
             LevelObjects = new List<Rectangle>
                 {
+                    new Rectangle(200, 100, 10, 200),
+                    new Rectangle(590, 100, 10, 200),
                     new Rectangle(200, 300, 400, 10),  // Ground
                     new Rectangle(245, 250, 100, 10),  // A flat thingie in the air
                     new Rectangle(455, 250, 100, 10),  // More thingie
-                    new Rectangle(360, 200, 80, 10),    // You know the drill by now
-                    new Rectangle(300, 290, 10,10),
-                    new Rectangle(500, 290, 10,10)
+                    new Rectangle(360, 200, 80,  10),    // You know the drill by now
+                    //new Rectangle(300, 290, 10,  10),
+                    //new Rectangle(500, 290, 10,  10)
                 };
 
-            ExitBox = new Rectangle(390, 180, 20, 20);
+            //ExitBox = new Rectangle(390, 180, 20, 20);
 
             Enemies = new List<Enemy>
                 {
-                    new Enemy(this, new Vector2(550, 200))
+                    new Turtle(this, new Vector2(rand.Next(225,475), 200)),
+                    new Goomba(this, new Vector2(rand.Next(225,475), 200)),
                 };
 
             DeathList = new List<GameEntity>();
