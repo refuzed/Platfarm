@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -11,7 +12,7 @@ namespace Platfarm
         private Level _level;
         private KeyboardState _currentKeyboardState;
         private KeyboardState _prevKeyboardState;
-        private bool _pause;
+        protected readonly Random Rand = new Random();
 
         public Platfarm()
         {
@@ -22,7 +23,7 @@ namespace Platfarm
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            _level = new Level(Services);
+            _level = new Level(Services, Rand);
         }
 
         protected override void Update(GameTime gameTime)
@@ -34,10 +35,9 @@ namespace Platfarm
             // Previous keyboardstate was saved to prevent double taps:
             if (_currentKeyboardState.IsKeyDown(Keys.Escape) 
                 && !_prevKeyboardState.IsKeyDown(Keys.Escape))
-                _level = new Level(Services);
+                _level = new Level(Services,Rand);
 
-            if(!_pause)
-                _level.Update(gameTime, _currentKeyboardState);
+            _level.Update(gameTime, _currentKeyboardState);
 
             base.Update(gameTime);
         }

@@ -11,46 +11,102 @@ namespace Platfarm
     {
         public readonly ContentManager Content;
 
-        public List<Rectangle> LevelObjects { get; set; }
+        public List<Tile> LevelObjects { get; set; }
         public Vector2 StartPosition { get; set; }
-        public Rectangle ExitBox { get; set; }
-        public Player Player;
-        public List<Enemy> Enemies; 
-        public List<GameEntity> DeathList; 
+        public Player Player { get; set; }
+        public List<Enemy> Enemies { get; set; }
+        public List<GameEntity> DeathList { get; set; }
 
-        private readonly Texture2D _levelTexture;
+        public const int GridMultiplier = 16;
 
-        public Level(IServiceProvider serviceProvider)
+        private readonly Texture2D _tileTexture;
+        private readonly Texture2D _sceneryTexture;
+        private readonly Texture2D _tubeTexture;
+
+        public Level(IServiceProvider serviceProvider, Random random)
         {
-            var rand = new Random();
             Content = new ContentManager(serviceProvider, "Content");
-            _levelTexture = Content.Load<Texture2D>("square");
-
-            StartPosition = new Vector2(250, 280);
-
-            LevelObjects = new List<Rectangle>
-                {
-                    new Rectangle(200, 100, 10, 200),
-                    new Rectangle(590, 100, 10, 200),
-                    new Rectangle(200, 300, 400, 10),  // Ground
-                    new Rectangle(245, 250, 100, 10),  // A flat thingie in the air
-                    new Rectangle(455, 250, 100, 10),  // More thingie
-                    new Rectangle(360, 200, 80,  10),    // You know the drill by now
-                    //new Rectangle(300, 290, 10,  10),
-                    //new Rectangle(500, 290, 10,  10)
-                };
-
-            //ExitBox = new Rectangle(390, 180, 20, 20);
+            _tileTexture = Content.Load<Texture2D>("Tiles");
+            _sceneryTexture = Content.Load<Texture2D>("Scenery");
+            _tubeTexture = Content.Load<Texture2D>("Tube");
+            
+            StartPosition = new Vector2(2 * GridMultiplier, 26 * GridMultiplier);
+            
+            LoadLevelObjects();
 
             Enemies = new List<Enemy>
                 {
-                    new Turtle(this, new Vector2(rand.Next(225,475), 200)),
-                    new Goomba(this, new Vector2(rand.Next(225,475), 200)),
+                    new Turtle(this, new Vector2(random.Next(225,475), 200)),
+                    new Goomba(this, new Vector2(random.Next(225,475), 200)),
                 };
 
             DeathList = new List<GameEntity>();
 
             Player = new Player(this);
+        }
+
+        private void LoadLevelObjects()
+        {
+            // TODO: load this from a text file
+            var tempLevel = new int[,]
+                {
+                    {1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1},
+                    {1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1},
+                    {1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1},
+                    {1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1},
+                    {1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1},
+                    {1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1},
+                    {1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1},
+                    {1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1},
+                    {1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1},
+                    {1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1},
+                    {1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1},
+                    {1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1},
+                    {1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1},
+                    {1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1},
+                    {1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1},
+                    {1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1},
+                    {1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1},
+                    {1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1},
+                    {1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1},
+                    {1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1},
+                    {1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 6, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1},
+                    {1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1},
+                    {1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1},
+                    {1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1},
+                    {1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 6, 9, 9, 9, 0, 6, 0, 6, 0, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1},
+                    {1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1},
+                    {1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1},
+                    {1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1},
+                    {4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},
+                    {4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4}
+                };
+
+            LevelObjects = new List<Tile>();
+
+            for(int i = 0; i < tempLevel.GetLength(0); i++)
+            {
+                for (int j = 0; j < tempLevel.GetLength(1); j++)
+                {
+                    if (tempLevel[i, j] != 9)
+                        LevelObjects.Add(new Tile(_tileTexture, new Vector2(0, GridMultiplier * tempLevel[i, j]), true, new Vector2(j * GridMultiplier, i * GridMultiplier), new Vector2(GridMultiplier, GridMultiplier)));
+                   
+                }
+            }
+
+            // Hacking Scenery in even worse than the level tiles...
+            LevelObjects.Add(new Tile(_sceneryTexture, new Vector2(51, 73), false, new Vector2( 1 * GridMultiplier,     26 * GridMultiplier - 3),  new Vector2(79, 35)));   // Big Hill
+            LevelObjects.Add(new Tile(_sceneryTexture, new Vector2(0, 0),   false, new Vector2( 9 * GridMultiplier - 8, 18 * GridMultiplier - 3),  new Vector2(32, 24)));   // Little Cloud
+            LevelObjects.Add(new Tile(_sceneryTexture, new Vector2(80, 48), false, new Vector2(12 * GridMultiplier - 8, 26 * GridMultiplier + 8),  new Vector2(64, 24)));   // Big Bush
+            LevelObjects.Add(new Tile(_sceneryTexture, new Vector2(0, 73),  false, new Vector2(16 * GridMultiplier,     26 * GridMultiplier - 3),  new Vector2(48, 35)));   // Small Hill
+            LevelObjects.Add(new Tile(_sceneryTexture, new Vector2(0, 0),   false, new Vector2(20 * GridMultiplier - 8, 17 * GridMultiplier - 3),  new Vector2(32, 24)));   // Little Cloud
+            LevelObjects.Add(new Tile(_sceneryTexture, new Vector2(0, 48),  false, new Vector2(24 * GridMultiplier - 8, 26 * GridMultiplier + 8),  new Vector2(32, 24)));   // Little Bush
+            LevelObjects.Add(new Tile(_sceneryTexture, new Vector2(80, 0),  false, new Vector2(28 * GridMultiplier - 8, 18 * GridMultiplier - 3),  new Vector2(64, 24)));   // Big Cloud
+            LevelObjects.Add(new Tile(_tubeTexture,    new Vector2(0, 0),    true, new Vector2(28 * GridMultiplier,     25 * GridMultiplier + 16), new Vector2(32, 32)));   // Tube
+            LevelObjects.Add(new Tile(_sceneryTexture, new Vector2(32, 0),  false, new Vector2(37 * GridMultiplier - 8, 18 * GridMultiplier - 3),  new Vector2(48, 24)));   // Medium Cloud
+            LevelObjects.Add(new Tile(_tubeTexture,    new Vector2(0, 0),    true, new Vector2(38 * GridMultiplier,     24 * GridMultiplier + 16), new Vector2(32, 32)));   // Tube
+            LevelObjects.Add(new Tile(_tubeTexture,    new Vector2(0, 16),   true, new Vector2(38 * GridMultiplier,     26 * GridMultiplier + 16), new Vector2(32, 16)));   // Tube Chunk
+            LevelObjects.Add(new Tile(_sceneryTexture, new Vector2(32, 48), false, new Vector2(42 * GridMultiplier - 8, 26 * GridMultiplier + 8),  new Vector2(48, 24)));   // Medium Bush
         }
 
         public void Update(GameTime gameTime, KeyboardState keyboardState)
@@ -75,19 +131,17 @@ namespace Platfarm
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            Player.Draw(gameTime, spriteBatch);
+            foreach (var levelObject in LevelObjects)
+            {
+                spriteBatch.Draw(levelObject.Texture, levelObject.Position, levelObject.Source, Color.White, 0.0f, new Vector2(), 1.0f, SpriteEffects.None, 0.0f);
+            }
 
             foreach (var enemy in Enemies)
             {
                 enemy.Draw(gameTime, spriteBatch);
             }
 
-            foreach (var levelObject in LevelObjects)
-            {
-                spriteBatch.Draw(_levelTexture, levelObject, Color.Azure);
-            }
-
-            spriteBatch.Draw(_levelTexture, ExitBox, Color.LightGreen);
+            Player.Draw(gameTime, spriteBatch);
         }
     }
 }

@@ -77,9 +77,9 @@ namespace Platfarm
         {
             IsOnGround = false;
 
-            foreach (var levelObject in Level.LevelObjects)
+            foreach (var levelObject in Level.LevelObjects.Where(x => x.Collide))
             {
-                if (Bound(Direction.Down).Intersects(levelObject))
+                if (Bound(Direction.Down).Intersects(levelObject.Bound))
                 {
                     CurrentPosition.Y = PreviousPosition.Y;
                     MovementVector.Y *= 0.35f;
@@ -87,14 +87,14 @@ namespace Platfarm
                     IsJumping = false;
                 }
 
-                if (Bound(Direction.Left).Intersects(levelObject) || Bound(Direction.Right).Intersects(levelObject))
+                if (Bound(Direction.Left).Intersects(levelObject.Bound) || Bound(Direction.Right).Intersects(levelObject.Bound))
                 {
                     CurrentPosition.X = PreviousPosition.X;
                     MovementVector.X *= -0.15f;
                     Direction = Direction == Direction.Right ? Direction.Left : Direction.Right;
                 }
 
-                if (Bound(Direction.Up).Intersects(levelObject))
+                if (Bound(Direction.Up).Intersects(levelObject.Bound))
                 {
                     CurrentPosition.Y = PreviousPosition.Y;
                     MovementVector.Y = -0.25f;

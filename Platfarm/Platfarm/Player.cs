@@ -13,6 +13,7 @@ namespace Platfarm
             Texture = Level.Content.Load<Texture2D>("Mario");
             CurrentPosition = Level.StartPosition;
             Size = new Vector2(16, 16);
+            Speed = new Vector2(4.0f, 3.3f);
 
             Sprite = new Animator();
             Animations = new[]
