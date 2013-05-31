@@ -49,6 +49,7 @@ namespace Platfarm
         {
             var Level = Content.Load<Texture2D>("Level1");
             Color[,] colorArray = TextureTo2DArray(Level);
+
             LevelObjects = new List<Tile>();
 
             for (int i = 0; i < colorArray.GetLength(0); i++)
@@ -56,23 +57,9 @@ namespace Platfarm
                 for (int j = 0; j < colorArray.GetLength(1); j++)
                 {
                     if (colorArray[i, j] != Color.White)
-                        LevelObjects.Add(new Tile(_tileTexture, new Vector2(0, GridMultiplier * ColorArrayToInt(colorArray[i, j])), true, new Vector2(i * GridMultiplier, j * GridMultiplier), new Vector2(GridMultiplier, GridMultiplier)));
-                   
+                        LevelObjects.Add(BuildTile(colorArray[i, j], i, j));
                 }
             }
-
-            LevelObjects.Add(new Tile(_sceneryTexture, new Vector2(51, 73), false, new Vector2( 1 * GridMultiplier,     26 * GridMultiplier - 3),  new Vector2(79, 35)));   // Big Hill
-            LevelObjects.Add(new Tile(_sceneryTexture, new Vector2(0, 0),   false, new Vector2( 9 * GridMultiplier - 8, 18 * GridMultiplier - 3),  new Vector2(32, 24)));   // Little Cloud
-            LevelObjects.Add(new Tile(_sceneryTexture, new Vector2(80, 48), false, new Vector2(12 * GridMultiplier - 8, 26 * GridMultiplier + 8),  new Vector2(64, 24)));   // Big Bush
-            LevelObjects.Add(new Tile(_sceneryTexture, new Vector2(0, 73),  false, new Vector2(16 * GridMultiplier,     26 * GridMultiplier - 3),  new Vector2(48, 35)));   // Small Hill
-            LevelObjects.Add(new Tile(_sceneryTexture, new Vector2(0, 0),   false, new Vector2(20 * GridMultiplier - 8, 17 * GridMultiplier - 3),  new Vector2(32, 24)));   // Little Cloud
-            LevelObjects.Add(new Tile(_sceneryTexture, new Vector2(0, 48),  false, new Vector2(24 * GridMultiplier - 8, 26 * GridMultiplier + 8),  new Vector2(32, 24)));   // Little Bush
-            LevelObjects.Add(new Tile(_sceneryTexture, new Vector2(80, 0),  false, new Vector2(28 * GridMultiplier - 8, 18 * GridMultiplier - 3),  new Vector2(64, 24)));   // Big Cloud
-            LevelObjects.Add(new Tile(_tubeTexture,    new Vector2(0, 0),    true, new Vector2(28 * GridMultiplier,     25 * GridMultiplier + 16), new Vector2(32, 32)));   // Tube
-            LevelObjects.Add(new Tile(_sceneryTexture, new Vector2(32, 0),  false, new Vector2(37 * GridMultiplier - 8, 18 * GridMultiplier - 3),  new Vector2(48, 24)));   // Medium Cloud
-            LevelObjects.Add(new Tile(_tubeTexture,    new Vector2(0, 0),    true, new Vector2(38 * GridMultiplier,     24 * GridMultiplier + 16), new Vector2(32, 32)));   // Tube
-            LevelObjects.Add(new Tile(_tubeTexture,    new Vector2(0, 16),   true, new Vector2(38 * GridMultiplier,     26 * GridMultiplier + 16), new Vector2(32, 16)));   // Tube Chunk
-            LevelObjects.Add(new Tile(_sceneryTexture, new Vector2(32, 48), false, new Vector2(42 * GridMultiplier - 8, 26 * GridMultiplier + 8),  new Vector2(48, 24)));   // Medium Bush
         }
 
         private Color[,] TextureTo2DArray(Texture2D texture)
@@ -88,17 +75,135 @@ namespace Platfarm
             return colors2D;
         }
 
-        private int ColorArrayToInt(Color color)
+        private Tile BuildTile(Color color, int i, int j)
+        {
+            Texture2D texture;
+            Vector2 imageIndex;
+            bool collide;
+            Vector2 position = new Vector2(i * GridMultiplier, j * GridMultiplier);
+            Vector2 tileSize;
+
+            var hexColor = color.ToHex();
+            switch (hexColor)
+            {
+                // Basic Level Tiles
+                case "#000000":
+                case "#404040":
+                case "#FF0000":
+                case "#FF6A00":
+                case "#FFD800":
+                case "#B6FF00":
+                case "#4CFF00":
+                case "#00FF21":
+                    texture = _tileTexture;
+                    imageIndex = new Vector2(0, GridMultiplier * ColorToInt(color));
+                    collide = true;
+                    tileSize = new Vector2(GridMultiplier, GridMultiplier);
+                    break;
+                case "#606060": // Small Cloud
+                    texture = _sceneryTexture;
+                    imageIndex = new Vector2(0, 0);
+                    position.X -= 8;
+                    position.Y -= 3;
+                    collide = false;
+                    tileSize = new Vector2(32, 24);
+                    break;
+                case "#808080": // Medium Cloud
+                    texture = _sceneryTexture;
+                    imageIndex = new Vector2(32, 0);
+                    position.X -= 8;
+                    position.Y -= 3;
+                    collide = false;
+                    tileSize = new Vector2(48, 24);
+                    break;
+                case "#7F0000": // Big Cloud
+                    texture = _sceneryTexture;
+                    imageIndex = new Vector2(80, 0);
+                    position.X -= 8;
+                    position.Y -= 3;
+                    collide = false;
+                    tileSize = new Vector2(64, 24);
+                    break;
+                case "#7F3300": // Small Bush
+                    texture = _sceneryTexture;
+                    imageIndex = new Vector2(0, 48);
+                    position.X -= 8;
+                    position.Y += 8;
+                    collide = false;
+                    tileSize = new Vector2(32, 24);
+                    break;
+                case "#7F6A00": // Medium Bush
+                    texture = _sceneryTexture;
+                    imageIndex = new Vector2(32, 48);
+                    position.X -= 8;
+                    position.Y += 8;
+                    collide = false;
+                    tileSize = new Vector2(48, 24);
+                    break;
+                case "#5B7F00": // Big Bush
+                    texture = _sceneryTexture;
+                    imageIndex = new Vector2(80, 48);
+                    position.X -= 8;
+                    position.Y += 8;
+                    collide = false;
+                    tileSize = new Vector2(64, 24);
+                    break;
+                case "#267F00":  // Small Hill
+                    texture = _sceneryTexture;
+                    imageIndex = new Vector2(0, 73);
+                    position.Y -= 3;
+                    collide = false;
+                    tileSize = new Vector2(48, 35);
+                    break;
+                case "#007F0E":  // Big Hill
+                    texture = _sceneryTexture;
+                    imageIndex = new Vector2(51, 73);
+                    position.Y -= 3;
+                    collide = false;
+                    tileSize = new Vector2(79, 35);
+                    break;
+                case "#A0A0A0": // Tube Part
+                    texture = _tubeTexture;
+                    imageIndex = new Vector2(0, 16);
+                    position.Y += 16;
+                    collide = false;
+                    tileSize = new Vector2(32, 16);
+                    break;
+                case "#303030": // Tube Top
+                    texture = _tubeTexture;
+                    imageIndex = new Vector2(0, 0);
+                    position.Y += 16;
+                    collide = false;
+                    tileSize = new Vector2(32, 32);
+                    break;
+                default:
+                    throw new Exception("zONO");
+            }
+
+            return new Tile(texture, imageIndex, collide, position, tileSize);
+        }
+
+        private int ColorToInt(Color color)
         {
             var hexColor = color.ToHex();
             switch (hexColor)
             {
                 case "#000000":
                     return 0;
-                case "#7F7F7F":
+                case "#404040":
                     return 1;
-                case "#FF7F27":
+                case "#FF0000":
+                    return 2;
+                case "#FF6A00":
+                    return 3;
+                case "#FFD800":
+                    return 4;
+                case "#B6FF00":
+                    return 5;
+                case "#4CFF00":
                     return 6;
+                case "#00FF21":
+                    return 7;
                 default:
                     return 0;
             }

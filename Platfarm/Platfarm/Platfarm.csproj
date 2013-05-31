@@ -112,6 +112,7 @@
     <Compile Include="Animator.cs" />
     <Compile Include="Direction.cs" />
     <Compile Include="Enemy.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="GameEntity.cs" />
     <Compile Include="Goomba.cs" />
     <Compile Include="Level.cs" />
