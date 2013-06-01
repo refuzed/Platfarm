@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -57,12 +58,12 @@ namespace Platfarm
                     break;
             }
 
-            return new Rectangle((int)CurrentPosition.X + xAdjust * (int)Speed.X, (int)CurrentPosition.Y + yAdjust * (int)Speed.Y, (int)Size.X, (int)Size.Y);
+            return new Rectangle(Convert.ToInt32(CurrentPosition.X) + xAdjust * Convert.ToInt32(Speed.X), Convert.ToInt32(CurrentPosition.Y) + yAdjust * Convert.ToInt32(Speed.Y), Convert.ToInt32(Size.X), Convert.ToInt32(Size.Y));
         }
 
-        public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
+        public void Draw(GameTime gameTime, SpriteBatch spriteBatch, int scale)
         {
-            Sprite.Draw(gameTime, spriteBatch, CurrentPosition, Flip);
+            Sprite.Draw(gameTime, spriteBatch, CurrentPosition, Flip, scale);
         }
 
         public void Kill()

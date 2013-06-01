@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -107,8 +108,8 @@ namespace Platfarm
             if (MovementVector.X < -MaxSpeed.X) MovementVector.X = -MaxSpeed.X;
 
             PreviousPosition = CurrentPosition;
-            CurrentPosition.X += MovementVector.X;
-            CurrentPosition.Y -= MovementVector.Y;
+            CurrentPosition.X += Convert.ToInt32(MovementVector.X);
+            CurrentPosition.Y -= Convert.ToInt32(MovementVector.Y);
 
         }
 

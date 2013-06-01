@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -28,8 +29,8 @@ namespace Platfarm
             ApplyPhysics(elapsed);
 
             PreviousPosition = CurrentPosition;
-            CurrentPosition.X += MovementVector.X;
-            CurrentPosition.Y -= MovementVector.Y;
+            CurrentPosition.X += Convert.ToInt32(MovementVector.X);
+            CurrentPosition.Y -= Convert.ToInt32(MovementVector.Y);
         }
 
         private void ApplyPhysics(float elapsed)

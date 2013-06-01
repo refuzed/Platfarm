@@ -20,7 +20,7 @@ namespace Platfarm
             this._time = 0.0f;
         }
          
-        public void Draw(GameTime gameTime, SpriteBatch spriteBatch, Vector2 position, SpriteEffects spriteEffects)
+        public void Draw(GameTime gameTime, SpriteBatch spriteBatch, Vector2 position, SpriteEffects spriteEffects, int scale)
         {
             _time += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
@@ -40,7 +40,7 @@ namespace Platfarm
 
             var source = new Rectangle((_frame) * _animation.Width, (int)_animation.AnimationType * _animation.Height, _animation.Width, _animation.Height);
 
-            spriteBatch.Draw(_animation.Texture, position, source, Color.White, 0.0f, new Vector2(), 1.0f, spriteEffects, 0.0f);
+            spriteBatch.Draw(_animation.Texture, position, source, Color.White, 0.0f, new Vector2(), scale, spriteEffects, 0.0f);
         }
 
         private Vector2 GetOrigin()

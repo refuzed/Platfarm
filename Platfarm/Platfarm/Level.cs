@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -16,6 +17,8 @@ namespace Platfarm
         public Player Player { get; set; }
         public List<Enemy> Enemies { get; set; }
         public List<GameEntity> DeathList { get; set; }
+        public int Scale { get; set; }
+        public Rectangle DrawWindow { get; set; }
 
         public const int GridMultiplier = 16;
 
@@ -30,8 +33,12 @@ namespace Platfarm
             _sceneryTexture = Content.Load<Texture2D>("Scenery");
             _tubeTexture = Content.Load<Texture2D>("Tube");
             
-            StartPosition = new Vector2(2 * GridMultiplier, 26 * GridMultiplier);
-            
+            StartPosition = new Vector2(10 * GridMultiplier * Scale, 5 * GridMultiplier * Scale);
+            Scale = 2;
+
+            var graphicsDevice = Content.GetGraphicsDevice();
+            DrawWindow = new Rectangle(0, 0, graphicsDevice.Viewport.Width * Scale, graphicsDevice.Viewport.Height * Scale);
+
             LoadLevelObjects();
 
             Enemies = new List<Enemy>
@@ -150,17 +157,17 @@ namespace Platfarm
                     break;
                 case "#267F00":  // Small Hill
                     texture = _sceneryTexture;
-                    imageIndex = new Vector2(0, 73);
+                    imageIndex = new Vector2(0, 74);
                     position.Y -= 3;
                     collide = false;
-                    tileSize = new Vector2(48, 35);
+                    tileSize = new Vector2(48, 36);
                     break;
                 case "#007F0E":  // Big Hill
                     texture = _sceneryTexture;
-                    imageIndex = new Vector2(51, 73);
+                    imageIndex = new Vector2(51, 74);
                     position.Y -= 3;
                     collide = false;
-                    tileSize = new Vector2(79, 35);
+                    tileSize = new Vector2(79, 36);
                     break;
                 case "#A0A0A0": // Tube Part
                     texture = _tubeTexture;
@@ -180,7 +187,7 @@ namespace Platfarm
                     throw new Exception("zONO");
             }
 
-            return new Tile(texture, imageIndex, collide, position, tileSize);
+            return new Tile(texture, imageIndex, collide, position, tileSize, Scale);
         }
 
         private int ColorToInt(Color color)
@@ -231,17 +238,17 @@ namespace Platfarm
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            foreach (var levelObject in LevelObjects)
+            foreach (var levelObject in LevelObjects.Where(x => DrawWindow.Contains(x.Position.ToPoint())))
             {
-                spriteBatch.Draw(levelObject.Texture, levelObject.Position, levelObject.Source, Color.White, 0.0f, new Vector2(), 1.0f, SpriteEffects.None, 0.0f);
+                spriteBatch.Draw(levelObject.Texture, levelObject.Position * Scale, levelObject.Source, Color.White, 0.0f, new Vector2(), Scale, SpriteEffects.None, 0.0f);
             }
 
             foreach (var enemy in Enemies)
             {
-                enemy.Draw(gameTime, spriteBatch);
+                enemy.Draw(gameTime, spriteBatch, Scale);
             }
 
-            Player.Draw(gameTime, spriteBatch);
+            Player.Draw(gameTime, spriteBatch, Scale);
         }
     }
 
