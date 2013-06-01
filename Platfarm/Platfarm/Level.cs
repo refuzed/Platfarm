@@ -33,11 +33,11 @@ namespace Platfarm
             _sceneryTexture = Content.Load<Texture2D>("Scenery");
             _tubeTexture = Content.Load<Texture2D>("Tube");
             
-            StartPosition = new Vector2(10 * GridMultiplier * Scale, 5 * GridMultiplier * Scale);
+            StartPosition = new Vector2(50, 50);
             Scale = 2;
 
             var graphicsDevice = Content.GetGraphicsDevice();
-            DrawWindow = new Rectangle(0, 0, graphicsDevice.Viewport.Width * Scale, graphicsDevice.Viewport.Height * Scale);
+            DrawWindow = new Rectangle(100, 0, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height);
 
             LoadLevelObjects();
 
@@ -238,17 +238,17 @@ namespace Platfarm
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            foreach (var levelObject in LevelObjects.Where(x => DrawWindow.Contains(x.Position.ToPoint())))
+            foreach (var levelObject in LevelObjects)
             {
-                spriteBatch.Draw(levelObject.Texture, levelObject.Position * Scale, levelObject.Source, Color.White, 0.0f, new Vector2(), Scale, SpriteEffects.None, 0.0f);
+                spriteBatch.Draw(levelObject.Texture, (levelObject.Position - DrawWindow.Location.ToVector2()) * Scale, levelObject.Source, Color.White, 0.0f, new Vector2(), Scale, SpriteEffects.None, 0.0f);
             }
 
             foreach (var enemy in Enemies)
             {
-                enemy.Draw(gameTime, spriteBatch, Scale);
+                enemy.Draw(gameTime, spriteBatch);
             }
 
-            Player.Draw(gameTime, spriteBatch, Scale);
+            Player.Draw(gameTime, spriteBatch);
         }
     }
 

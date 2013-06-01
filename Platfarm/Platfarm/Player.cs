@@ -9,8 +9,8 @@ namespace Platfarm
     public class Player : GameEntity
     {
         public Player(Level level)
+            : base(level)
         {
-            Level = level;
             Texture = Level.Content.Load<Texture2D>("Mario");
             CurrentPosition = Level.StartPosition;
             Size = new Vector2(16, 16);

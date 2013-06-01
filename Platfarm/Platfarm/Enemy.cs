@@ -7,9 +7,8 @@ namespace Platfarm
 {
     public class Enemy : GameEntity
     {
-        public Enemy(Level level, Vector2 startPosition)
+        public Enemy(Level level, Vector2 startPosition) : base(level)
         {
-            Level = level;
             CurrentPosition = startPosition;
         }
 

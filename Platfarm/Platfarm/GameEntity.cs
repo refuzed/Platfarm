@@ -28,8 +28,9 @@ namespace Platfarm
         public Dictionary<AnimationType, Animation> Animations { get; set; }
         public SpriteEffects Flip { get; set; }
         
-        public GameEntity()
+        public GameEntity(Level level)
         {
+            Level = level;
             MovementVector = new Vector2(0, 0);
             Speed = new Vector2(3.0f, 3.0f);
             Friction = new Vector2(2.0f, 5.0f);
@@ -58,12 +59,12 @@ namespace Platfarm
                     break;
             }
 
-            return new Rectangle(Convert.ToInt32(CurrentPosition.X) + xAdjust * Convert.ToInt32(Speed.X), Convert.ToInt32(CurrentPosition.Y) + yAdjust * Convert.ToInt32(Speed.Y), Convert.ToInt32(Size.X), Convert.ToInt32(Size.Y));
+            return new Rectangle(Convert.ToInt32(CurrentPosition.X) + xAdjust * Convert.ToInt32(Speed.X), Convert.ToInt32(CurrentPosition.Y) + yAdjust * Convert.ToInt32(Speed.Y), Convert.ToInt32(Size.X) * Level.Scale, Convert.ToInt32(Size.Y) * Level.Scale);
         }
 
-        public void Draw(GameTime gameTime, SpriteBatch spriteBatch, int scale)
+        public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            Sprite.Draw(gameTime, spriteBatch, CurrentPosition, Flip, scale);
+            Sprite.Draw(gameTime, spriteBatch, CurrentPosition, Flip, Level.Scale);
         }
 
         public void Kill()
