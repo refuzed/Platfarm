@@ -23,6 +23,7 @@ namespace Platfarm
         public float DeathCountdown { get; set; }
         public float DeathTimeout { get; set; }
         public bool isDead { get; set; }
+        public Vector2 DrawPosition { get { return CurrentPosition * Level.Scale - Level.DrawWindow.Location.ToVector2(); } }
 
         public Animator Sprite { get; set; }
         public Dictionary<AnimationType, Animation> Animations { get; set; }
@@ -59,12 +60,15 @@ namespace Platfarm
                     break;
             }
 
-            return new Rectangle(Convert.ToInt32(CurrentPosition.X) + xAdjust * Convert.ToInt32(Speed.X), Convert.ToInt32(CurrentPosition.Y) + yAdjust * Convert.ToInt32(Speed.Y), Convert.ToInt32(Size.X) * Level.Scale, Convert.ToInt32(Size.Y) * Level.Scale);
+            return new Rectangle(Convert.ToInt32(CurrentPosition.X) * Level.Scale + xAdjust * Convert.ToInt32(Speed.X), 
+                                 Convert.ToInt32(CurrentPosition.Y) * Level.Scale + yAdjust * Convert.ToInt32(Speed.Y), 
+                                 Convert.ToInt32(Size.X) * Level.Scale, 
+                                 Convert.ToInt32(Size.Y) * Level.Scale);
         }
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            Sprite.Draw(gameTime, spriteBatch, CurrentPosition, Flip, Level.Scale);
+            Sprite.Draw(gameTime, spriteBatch, DrawPosition, Flip, Level.Scale);
         }
 
         public void Kill()
@@ -73,7 +77,6 @@ namespace Platfarm
             Sprite.SetAnimation(Animations[AnimationType.Death]);
             Level.DeathList.Add(this);
         }
-
 
         public virtual void CheckCollision()
         {
@@ -104,6 +107,9 @@ namespace Platfarm
             }
         }
 
-        public virtual void Unload(){}
+        public virtual void Unload()
+        {
+            Level.DeathList.Remove(this);
+        }
     }
 }

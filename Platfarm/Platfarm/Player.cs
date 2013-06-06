@@ -14,7 +14,7 @@ namespace Platfarm
             Texture = Level.Content.Load<Texture2D>("Mario");
             CurrentPosition = Level.StartPosition;
             Size = new Vector2(16, 16);
-            Speed = new Vector2(4.0f, 3.3f);
+            Speed = new Vector2(5.0f, 3.3f);
 
             Sprite = new Animator();
             Animations = new[]
@@ -38,6 +38,7 @@ namespace Platfarm
             {
                 GetInputs(keyboardState);
                 Move(gameTime);
+                Level.DrawWindowX = this.CurrentPosition.X > 200 ? ((int)this.CurrentPosition.X - 200) * Level.Scale : 0;
             }
         }
 
@@ -136,6 +137,7 @@ namespace Platfarm
         public override void Unload()
         {
             Level.Player = new Player(Level);
+            base.Unload();
         }
     }
 }

@@ -62,6 +62,7 @@ namespace Platfarm
         public override void Unload()
         {
             Level.Enemies.Remove(this);
+            base.Unload();
         }
      }
 }

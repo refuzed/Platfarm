@@ -18,7 +18,10 @@ namespace Platfarm
         public List<Enemy> Enemies { get; set; }
         public List<GameEntity> DeathList { get; set; }
         public int Scale { get; set; }
-        public Rectangle DrawWindow { get; set; }
+        public Rectangle DrawWindow { get { return _drawWindow; } set { _drawWindow = value; } }
+        public int DrawWindowX { get { return _drawWindow.X; } set { _drawWindow.X = value; } }
+
+        private Rectangle _drawWindow;
 
         public const int GridMultiplier = 16;
 
@@ -32,7 +35,7 @@ namespace Platfarm
             _tileTexture = Content.Load<Texture2D>("Tiles");
             _sceneryTexture = Content.Load<Texture2D>("Scenery");
             _tubeTexture = Content.Load<Texture2D>("Tube");
-            
+
             StartPosition = new Vector2(50, 50);
             Scale = 2;
 
@@ -43,8 +46,8 @@ namespace Platfarm
 
             Enemies = new List<Enemy>
                 {
-                    new Turtle(this, new Vector2(random.Next(225,475), 200)),
-                    new Goomba(this, new Vector2(random.Next(225,475), 200)),
+                    //new Turtle(this, new Vector2(random.Next(225,475), 200)),
+                    //new Goomba(this, new Vector2(random.Next(225,475), 200)),
                 };
 
             DeathList = new List<GameEntity>();
@@ -173,14 +176,14 @@ namespace Platfarm
                     texture = _tubeTexture;
                     imageIndex = new Vector2(0, 16);
                     position.Y += 16;
-                    collide = false;
+                    collide = true;
                     tileSize = new Vector2(32, 16);
                     break;
                 case "#303030": // Tube Top
                     texture = _tubeTexture;
                     imageIndex = new Vector2(0, 0);
                     position.Y += 16;
-                    collide = false;
+                    collide = true;
                     tileSize = new Vector2(32, 32);
                     break;
                 default:
@@ -230,7 +233,6 @@ namespace Platfarm
                 var deadEntity = DeathList[index - 1];
                 if (deadEntity.DeathCountdown > deadEntity.DeathTimeout)
                 {
-                    DeathList.Remove(deadEntity);
                     deadEntity.Unload();
                 }
             }
@@ -240,7 +242,7 @@ namespace Platfarm
         {
             foreach (var levelObject in LevelObjects)
             {
-                spriteBatch.Draw(levelObject.Texture, (levelObject.Position - DrawWindow.Location.ToVector2()) * Scale, levelObject.Source, Color.White, 0.0f, new Vector2(), Scale, SpriteEffects.None, 0.0f);
+                spriteBatch.Draw(levelObject.Texture, levelObject.Position * Scale - DrawWindow.Location.ToVector2(), levelObject.Source, Color.White, 0.0f, new Vector2(), Scale, SpriteEffects.None, 0.0f);
             }
 
             foreach (var enemy in Enemies)
