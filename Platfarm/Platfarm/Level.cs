@@ -5,6 +5,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Media;
 
 namespace Platfarm
 {
@@ -46,13 +48,16 @@ namespace Platfarm
 
             Enemies = new List<Enemy>
                 {
-                    //new Turtle(this, new Vector2(random.Next(225,475), 200)),
-                    //new Goomba(this, new Vector2(random.Next(225,475), 200)),
+                    new Turtle(this, new Vector2(random.Next(225,475), 200)),
+                    new Goomba(this, new Vector2(random.Next(225,475), 200)),
                 };
 
             DeathList = new List<GameEntity>();
 
             Player = new Player(this);
+
+            var bgm = Content.Load<Song>("Sounds/01-overworld-bgm");
+            MediaPlayer.Play(bgm);
         }
 
         private void LoadLevelObjects()

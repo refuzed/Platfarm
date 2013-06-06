@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
 
 namespace Platfarm
 {
@@ -75,6 +76,8 @@ namespace Platfarm
             if (!IsJumping)
                 if (keyboardState.IsKeyDown(Keys.Space))
                 {
+                    var jumpSound = Level.Content.Load<SoundEffect>("Sounds/smb_jumpsmall");
+                    jumpSound.Play();
                     CurrentPosition.Y -= 1;
                     MovementVector.Y = Speed.Y;
                     IsJumping = true;
@@ -132,6 +135,14 @@ namespace Platfarm
             {
                 MovementVector.Y -= Friction.Y * elapsed;
             }
+        }
+
+        public override void Kill()
+        {
+            //TODO:  Sounds like 1000 elephants dying this way.... gotta limit looping. Also stop BGM.
+            //var deathSound = Level.Content.Load<SoundEffect>("Sounds/smb_mariodie");
+            //deathSound.Play();
+            base.Kill();
         }
 
         public override void Unload()

@@ -71,7 +71,7 @@ namespace Platfarm
             Sprite.Draw(gameTime, spriteBatch, DrawPosition, Flip, Level.Scale);
         }
 
-        public void Kill()
+        public virtual void Kill()
         {
             isDead = true;
             Sprite.SetAnimation(Animations[AnimationType.Death]);
